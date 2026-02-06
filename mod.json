@@ -1,0 +1,38 @@
+{
+	"geode": "4.10.21",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "amiza.spout2-sender",
+	"name": "Spout2 Sender",
+	"version": "v1.0.2",
+	"developer": "Amiza",
+	"description": "Captures the game screen with Spout2",
+	"resources": {
+		"sprites": [
+			"resources/cursor.png"
+		]
+	},
+	"settings": {
+		"output-fps": {
+			"type": "int",
+			"name": "Output FPS",
+			"description": "Sets the Spout2 output framerate",
+			"default": 60,
+			"min": 0,
+			"max": 360,
+			"control": {
+				"arrows": true,
+				"arrow-step": 10,
+				"big-arrows": true,
+				"big-arrow-step": 60,
+				"slider": true,
+				"slider-step": 2,
+				"input": true
+			}
+		}
+	}
+}
