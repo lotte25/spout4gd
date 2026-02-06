@@ -15,9 +15,7 @@ class $modify(CCEGLView) {
     void swapBuffers() {
         if (SpoutManager::shouldSendFrame()) {
             auto size = getFrameSize();
-            auto w = static_cast<int>(size.width);
-            auto h = static_cast<int>(size.height);
-            SpoutManager::captureScreen(w, h);
+            SpoutManager::captureScreen(size.width, size.height);
             /*if (PlayLayer::get()) {
                 SpoutHandler::capturePlayer();
             } */
