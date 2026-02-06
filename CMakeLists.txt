@@ -8,10 +8,7 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Spout2 
-set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
-
-project(Spout2Sender VERSION 1.0.0 LANGUAGES CXX)
+project(spout4gd VERSION 1.0.0 LANGUAGES CXX)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
@@ -22,10 +19,17 @@ else()
     message(STATUS "Found Geode: $ENV{GEODE_SDK}")
 endif()
 
-add_subdirectory(lib/Spout2)
-add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
+if (MSVC)
+    add_compile_options(/arch:AVX) 
+else()
+    add_compile_options(-mssse3)
+endif()
 
+# Spout2 
+set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
+add_subdirectory(lib/Spout2)
 target_link_libraries(${PROJECT_NAME} Spout_static)
 target_compile_definitions(${PROJECT_NAME} PRIVATE SPOUT_BUILD_STATIC USE_GLEW)
 
+add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 setup_geode_mod(${PROJECT_NAME})

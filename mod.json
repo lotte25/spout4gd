@@ -6,11 +6,11 @@
 		"mac": "2.2074",
 		"ios": "2.2074"
 	},
-	"id": "amiza.spout2-sender",
-	"name": "Spout2 Sender",
-	"version": "v1.0.2",
+	"id": "amiza.spout4gd",
+	"name": "Spout4GD",
+	"version": "v1.0.0",
 	"developer": "Amiza",
-	"description": "Captures the game screen with Spout2",
+	"description": "Captures the game screen using Spout2",
 	"resources": {
 		"sprites": [
 			"resources/cursor.png"
