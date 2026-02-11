@@ -12,13 +12,16 @@ $on_mod(Loaded) {
 }
 
 class $modify(CCEGLView) {
+    static void onModify(auto& self) {
+        if (!self.setHookPriorityPre("cocos2d::CCEGLView::swapBuffers", Priority::Last)) {
+            log::warn("Failed to set hook priority.");
+        }
+    }
+
     void swapBuffers() {
         if (SpoutManager::shouldSendFrame()) {
             auto size = getFrameSize();
             SpoutManager::captureScreen(size.width, size.height);
-            /*if (PlayLayer::get()) {
-                SpoutHandler::capturePlayer();
-            } */
         }
 
         CCEGLView::swapBuffers();
