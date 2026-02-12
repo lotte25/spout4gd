@@ -12,7 +12,9 @@ SpoutManager::SpoutManager() :
     frameInterval(std::chrono::nanoseconds(static_cast<int64_t>(1000000000.0 / 60))),
     nextCaptureTime(clock::now()) {}
 
-SpoutManager::~SpoutManager() {}
+SpoutManager::~SpoutManager() {
+    mainTarget->cleanup();
+}
 
 bool SpoutManager::shouldSendFrame() {
     auto now = clock::now();

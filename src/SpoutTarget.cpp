@@ -1,9 +1,9 @@
 #include "SpoutTarget.hpp"
+#include <iostream>
 
 SpoutTarget::SpoutTarget(const std::string& name) : senderName(name) {}
 
 SpoutTarget::~SpoutTarget() {
-    // sender.ReleaseSender();
     cleanup();
 }
 
@@ -15,6 +15,7 @@ void SpoutTarget::cleanup() {
     width = 0;
     height = 0;
     initialized = false;
+    sender.ReleaseSender();
 }
 
 void SpoutTarget::ensureSize(int w, int h) {
