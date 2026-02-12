@@ -19,7 +19,7 @@ private:
     SpoutManager();
     ~SpoutManager();
 
-    SpoutTarget mainTarget;
+    SpoutTarget* mainTarget = new SpoutTarget("Spout4GD - Screen");
     using clock = std::chrono::steady_clock;
     std::chrono::nanoseconds frameInterval;
     clock::time_point nextCaptureTime;

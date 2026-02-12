@@ -8,8 +8,7 @@ SpoutManager& SpoutManager::get() {
     return instance;
 }
 
-SpoutManager::SpoutManager() : 
-    mainTarget("Spout4GD - Screen"), 
+SpoutManager::SpoutManager() :
     frameInterval(std::chrono::nanoseconds(static_cast<int64_t>(1000000000.0 / 60))),
     nextCaptureTime(clock::now()) {}
 
@@ -120,7 +119,7 @@ void SpoutManager::drawCursor(int w, int h, float scale) {
 void SpoutManager::captureScreen(int w, int h) {
     if (!w || !h) return;
 
-    mainTarget.ensureSize(w, h);
+    mainTarget->ensureSize(w, h);
 
     GLint oldDrawFBO, oldReadFBO, oldTexture;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oldDrawFBO);
@@ -128,7 +127,7 @@ void SpoutManager::captureScreen(int w, int h) {
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &oldTexture);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mainTarget.fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mainTarget->fbo);
     glReadBuffer(GL_BACK);
 
     glBlitFramebuffer(
@@ -144,7 +143,7 @@ void SpoutManager::captureScreen(int w, int h) {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawFBO);
     glBindTexture(GL_TEXTURE_2D, oldTexture);
 
-    mainTarget.send();
+    mainTarget->send();
 }
 
 void SpoutManager::updateFrameInterval(double fps) {
