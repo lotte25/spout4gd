@@ -12,6 +12,7 @@ public:
     void drawCursor(int w, int h, float scale);
     void captureScreen(int w, int h);
     void updateFrameInterval(double fps);
+    void setCursorVisible(bool show);
     void reset();
 
 private:
@@ -23,4 +24,6 @@ private:
     std::chrono::nanoseconds frameInterval;
     clock::time_point nextCaptureTime;
     GLuint cursorTextureID = 0;
+
+    bool shouldRenderCursor = true;
 };

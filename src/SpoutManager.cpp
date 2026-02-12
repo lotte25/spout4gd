@@ -138,7 +138,7 @@ void SpoutManager::captureScreen(int w, int h) {
         GL_NEAREST
     );
 
-    drawCursor(w, h, scale);
+    if (shouldRenderCursor) drawCursor(w, h, scale);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadFBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawFBO);
@@ -155,4 +155,8 @@ void SpoutManager::updateFrameInterval(double fps) {
     nextCaptureTime = clock::now() + frameInterval;
 
     log::info("frame interval updated to {} fps ({}ns)", fps, frameInterval.count());
+}
+
+void SpoutManager::setCursorVisible(bool show) {
+    shouldRenderCursor = show;
 }

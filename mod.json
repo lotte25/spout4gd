@@ -17,6 +17,11 @@
 		]
 	},
 	"settings": {
+		"stream-options": {
+			"type": "title",
+			"name": "Stream Options",
+			"description": "Set output settings like FPS and (soon) fixed output resolution"
+		},
 		"output-fps": {
 			"type": "int",
 			"name": "Output FPS",
@@ -33,6 +38,12 @@
 				"slider-step": 2,
 				"input": true
 			}
+		},
+		"show-cursor": {
+			"type": "bool",
+			"name": "Enable fake cursor",
+			"description": "Renders a fake cursor to the output.",
+			"default": true
 		}
 	}
 }
