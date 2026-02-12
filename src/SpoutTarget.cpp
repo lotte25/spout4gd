@@ -1,6 +1,9 @@
 #include "SpoutTarget.hpp"
 
+SpoutTarget::SpoutTarget(const std::string& name) : senderName(name) {}
+
 SpoutTarget::~SpoutTarget() {
+    // sender.ReleaseSender();
     cleanup();
 }
 

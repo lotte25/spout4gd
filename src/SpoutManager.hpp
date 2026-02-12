@@ -1,11 +1,26 @@
 #pragma once
 
 #include "includes.hpp"
+#include "SpoutTarget.hpp"
+#include <chrono>
 
-namespace SpoutManager {
+class SpoutManager {
+public:
+    static SpoutManager& get();
+
     bool shouldSendFrame();
+    void drawCursor(int w, int h, float scale);
     void captureScreen(int w, int h);
-    // void capturePlayer();
-    void reset();
     void updateFrameInterval(double fps);
-}
+    void reset();
+
+private:
+    SpoutManager();
+    ~SpoutManager();
+
+    SpoutTarget mainTarget;
+    using clock = std::chrono::steady_clock;
+    std::chrono::nanoseconds frameInterval;
+    clock::time_point nextCaptureTime;
+    GLuint cursorTextureID = 0;
+};
