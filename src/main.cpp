@@ -5,9 +5,9 @@
 SpoutManager& manager = SpoutManager::get();
 
 $on_mod(Loaded) {
-    auto savedFPS = geode::Mod::get()->getSavedValue("output-fps", 60);
-    auto showCursor = geode::Mod::get()->getSavedValue("show-cursor", true);
-    auto cursorScale = geode::Mod::get()->getSavedValue("cursor-scale", 1.f);
+    auto savedFPS = geode::Mod::get()->getSettingValue<int64_t>("output-fps");
+    auto showCursor = geode::Mod::get()->getSettingValue<bool>("show-cursor");
+    auto cursorScale = geode::Mod::get()->getSettingValue<double>("cursor-scale");
 
     manager.updateFrameInterval(savedFPS);
     manager.setCursorVisible(showCursor);
