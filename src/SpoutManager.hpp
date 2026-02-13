@@ -9,10 +9,11 @@ public:
     static SpoutManager& get();
 
     bool shouldSendFrame();
-    void drawCursor(int w, int h, float scale);
+    void drawCursor(int w, int h);
     void captureScreen(int w, int h);
     void updateFrameInterval(double fps);
     void setCursorVisible(bool show);
+    void setCursorScale(float scale);
     void reset();
 
 private:
@@ -23,7 +24,7 @@ private:
     using clock = std::chrono::steady_clock;
     std::chrono::nanoseconds frameInterval;
     clock::time_point nextCaptureTime;
-    GLuint cursorTextureID = 0;
-
+    // Cursor
     bool shouldRenderCursor = true;
+    float cursorScale = 1.f;
 };

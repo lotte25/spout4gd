@@ -1,7 +1,6 @@
 #include "SpoutManager.hpp"
 #include "SpoutTarget.hpp"
-
-float scale = 1.3f;
+#include "FakeCursor.hpp"
 
 SpoutManager& SpoutManager::get() {
     static SpoutManager instance;
@@ -30,92 +29,13 @@ bool SpoutManager::shouldSendFrame() {
     return false;
 }
 
-void SpoutManager::drawCursor(int w, int h, float scale) {
-    CCTexture2D* texture = nullptr;
-    // Load cursor sprite to texture cache
-    if (cursorTextureID == 0) {
-        texture = CCTextureCache::sharedTextureCache()->addImage("cursor.png"_spr, false);
-        if (texture) {
-            cursorTextureID = texture->getName();
-            ccTexParams params = {GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE};
-            texture->setTexParameters(&params);
-            
-            log::info("Cursor texture ID: {}", cursorTextureID);
-        } else {
-            log::error("Couldnt load cursor texture");
-            return;
-        }
+void SpoutManager::drawCursor(int w, int h) {
+    if (!FakeCursor::init()) {
+        log::warn("Couldn't create fake cursor");
+        return;
     }
 
-    auto mousePos = CCEGLView::sharedOpenGLView()->getMousePosition();
-
-    float mouseX = mousePos.x;
-    float mouseY = h - mousePos.y; 
-    float mouseW = 32.0f;
-    float mouseH = 32.0f;
-
-    if (texture) {
-        mouseW = texture->getContentSize().width * scale;
-        mouseH = texture->getContentSize().height * scale;
-    }
-
-    // Save current attributes
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-    // Save shader program
-    GLint oldProgram;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &oldProgram);
-    glUseProgram(0);
-
-    glDrawBuffer(GL_COLOR_ATTACHMENT0); 
-
-    glViewport(0, 0, w, h);
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0, w, 0, h, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-
-    // Start drawing the texture
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, cursorTextureID);
-
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-    glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); 
-        glVertex2f(mouseX, mouseY); 
-
-        glTexCoord2f(1.0f, 0.0f); 
-        glVertex2f(mouseX + mouseW, mouseY);
-
-        glTexCoord2f(1.0f, 1.0f); 
-        glVertex2f(mouseX + mouseW, mouseY - mouseH);
-
-        glTexCoord2f(0.0f, 1.0f); 
-        glVertex2f(mouseX, mouseY - mouseH);
-    glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
-
-    // Restore matrix stack
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    
-    // Restore all previous attributes
-    glPopAttrib();
-    // Restore shader program
-    glUseProgram(oldProgram);
+    FakeCursor::draw(w, h, cursorScale);
 }
 
 void SpoutManager::captureScreen(int w, int h) {
@@ -139,7 +59,7 @@ void SpoutManager::captureScreen(int w, int h) {
         GL_NEAREST
     );
 
-    if (shouldRenderCursor) drawCursor(w, h, scale);
+    if (shouldRenderCursor) drawCursor(w, h);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadFBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawFBO);
@@ -160,4 +80,8 @@ void SpoutManager::updateFrameInterval(double fps) {
 
 void SpoutManager::setCursorVisible(bool show) {
     shouldRenderCursor = show;
+}
+
+void SpoutManager::setCursorScale(float scale) {
+    cursorScale = scale;
 }

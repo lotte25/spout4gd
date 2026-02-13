@@ -33,12 +33,26 @@
 				"slider-step": 2,
 				"input": true
 			}
+		}, 
+		"cursor-options": {
+			"type": "title",
+			"name": "Fake cursor options"
 		},
 		"show-cursor": {
 			"type": "bool",
-			"name": "Enable fake cursor",
+			"name": "Enable cursor",
 			"description": "Renders a fake cursor to the output.",
 			"default": true
+		},
+		"cursor-scale": {
+			"type": "float",
+			"name": "Cursor scale",
+			"default": 1,
+			"min": 0,
+			"max": 10,
+			"control": {
+				"slider": true
+			}
 		}
 	}
 }
