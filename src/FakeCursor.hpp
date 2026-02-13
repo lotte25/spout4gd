@@ -17,9 +17,17 @@ namespace FakeCursor {
         float y;
     };
 
+    static const std::unordered_map<std::string, GLuint> filterMap = {
+        { "Nearest", GL_NEAREST },
+        { "Linear",  GL_LINEAR },
+    };
+
     CursorTextureInfo CreateTexture();
 
     void setScale(float scale);
+    void setFilter(const std::string& filter);
+
+    void updateTextureParams();
     bool init();
     void draw(int w, int h);
 }

@@ -53,6 +53,15 @@
 			"control": {
 				"slider": true
 			}
+		},
+		"cursor-filter": {
+			"type": "string",
+			"name": "Cursor filter",
+			"description": "Sets the filter to use when rendering the cursor",
+			"default": "Linear",
+			"match": "[A-Z][a-z]+",
+			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+			"one-of": ["Nearest", "Linear"]
 		}
 	}
 }

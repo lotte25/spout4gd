@@ -3,7 +3,8 @@
 #include <winuser.h>
 
 namespace FakeCursor {
-    static GLuint textureID = 0;
+    static CCTexture2D* texture;
+    static GLuint textureFilter = GL_LINEAR;
     static CursorTextureInfo cursorData;
     static float cursorScale = 1.f;
     static float offsetX = 0.f;
@@ -136,30 +137,43 @@ namespace FakeCursor {
         offsetY = 0.f;
     }
 
+    void setFilter(const std::string& filter) {
+        auto it = filterMap.find(filter);
+        if (it != filterMap.end()) {
+            textureFilter = it->second;
+        }
+
+        updateTextureParams();
+    }
+
+    void updateTextureParams() {
+        if (texture == nullptr) return;
+
+        ccTexParams params = {
+            textureFilter, 
+            textureFilter, 
+            GL_CLAMP_TO_EDGE, 
+            GL_CLAMP_TO_EDGE
+        };
+        
+        texture->setTexParameters(&params);
+    }
+
     bool init() {
-        if (cursorData.success && textureID != 0) return true;
+        if (cursorData.success && texture != nullptr) return true;
 
         cursorData = CreateTexture();
         if (!cursorData.success) return false;
 
-        auto texture = new CCTexture2D();
+        texture = new CCTexture2D();
         texture->initWithData(
             cursorData.pixels.data(), 
             cocos2d::kCCTexture2DPixelFormat_RGBA8888, 
             cursorData.width, 
             cursorData.height, 
             CCSize(cursorData.width, cursorData.height)
-        );
-        GLuint defaultFilter = GL_NEAREST;
-        ccTexParams params = {
-            defaultFilter, 
-            defaultFilter, 
-            GL_CLAMP_TO_EDGE, 
-            GL_CLAMP_TO_EDGE
-        };
-        texture->setTexParameters(&params);
- 
-        textureID = texture->getName();
+        ); 
+        updateTextureParams();
 
         return true;
     }
@@ -195,7 +209,7 @@ namespace FakeCursor {
 
         // Start drawing the texture
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        glBindTexture(GL_TEXTURE_2D, texture->getName());
 
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 

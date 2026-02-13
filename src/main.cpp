@@ -9,10 +9,12 @@ $on_mod(Loaded) {
     auto savedFPS = geode::Mod::get()->getSettingValue<int64_t>("output-fps");
     auto showCursor = geode::Mod::get()->getSettingValue<bool>("show-cursor");
     auto cursorScale = geode::Mod::get()->getSettingValue<double>("cursor-scale");
+    auto cursorFilter = geode::Mod::get()->getSettingValue<std::string>("cursor-filter");
 
     manager.updateFrameInterval(savedFPS);
     manager.setCursorVisible(showCursor);
     FakeCursor::setScale(cursorScale);
+    FakeCursor::setFilter(cursorFilter);
 
     listenForSettingChanges("output-fps", [](int fps) {
         manager.updateFrameInterval(fps);
@@ -24,6 +26,10 @@ $on_mod(Loaded) {
 
     listenForSettingChanges("cursor-scale", [](float scale) {
         FakeCursor::setScale(scale);
+    });
+
+    listenForSettingChanges("cursor-filter", [](std::string filter) {
+        FakeCursor::setFilter(filter);
     });
 }
 
