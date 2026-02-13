@@ -19,7 +19,7 @@ namespace FakeCursor {
 
     CursorTextureInfo CreateTexture();
 
+    void setScale(float scale);
     bool init();
-
-    void draw(int w, int h, float scale);
+    void draw(int w, int h);
 }

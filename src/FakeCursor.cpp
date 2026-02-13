@@ -5,8 +5,7 @@
 namespace FakeCursor {
     static GLuint textureID = 0;
     static CursorTextureInfo cursorData;
-    static int cursorW = 0;
-    static int cursorH = 0;
+    static float cursorScale = 1.f;
     static float offsetX = 0.f;
     static float offsetY = 0.f;
 
@@ -76,10 +75,10 @@ namespace FakeCursor {
                     foundAlpha = true;
                 }
 
-                dstPixels[idx + 0] = r; // R
-                dstPixels[idx + 1] = g; // G
-                dstPixels[idx + 2] = b; // B
-                dstPixels[idx + 3] = a; // A 
+                dstPixels[idx + 0] = r;
+                dstPixels[idx + 1] = g;
+                dstPixels[idx + 2] = b;
+                dstPixels[idx + 3] = a;
             }
 
             if (!foundAlpha) {
@@ -114,9 +113,9 @@ namespace FakeCursor {
     }
 
     CursorPos CalculateCursorPos(int h) {
-        if (!offsetX || !offsetY) {
-            offsetX = cursorData.width * cursorData.anchorX;
-            offsetY = cursorData.height * (1.0f - cursorData.anchorY);
+        if (offsetX == 0 && offsetY == 0) {
+            offsetX = (cursorData.width * cursorData.anchorX) * cursorScale;
+            offsetY = (cursorData.height * (1.0f - cursorData.anchorY)) * cursorScale;
         }
 
         POINT p;
@@ -129,6 +128,12 @@ namespace FakeCursor {
         float y = glY - offsetY;
 
         return CursorPos{x, y};
+    }
+
+    void setScale(float scale) {
+        cursorScale = scale;
+        offsetX = 0.f;
+        offsetY = 0.f;
     }
 
     bool init() {
@@ -159,10 +164,10 @@ namespace FakeCursor {
         return true;
     }
 
-    void draw(int w, int h, float scale) {
+    void draw(int w, int h) {
         auto cursorPos = CalculateCursorPos(h);
-        float cursorW = cursorData.width * scale;
-        float cursorH = cursorData.height * scale;
+        float cursorW = cursorData.width * cursorScale;
+        float cursorH = cursorData.height * cursorScale;
 
         // Save current attributes
         glPushAttrib(GL_ALL_ATTRIB_BITS);

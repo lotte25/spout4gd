@@ -35,7 +35,7 @@ void SpoutManager::drawCursor(int w, int h) {
         return;
     }
 
-    FakeCursor::draw(w, h, cursorScale);
+    FakeCursor::draw(w, h);
 }
 
 void SpoutManager::captureScreen(int w, int h) {
@@ -80,8 +80,4 @@ void SpoutManager::updateFrameInterval(double fps) {
 
 void SpoutManager::setCursorVisible(bool show) {
     shouldRenderCursor = show;
-}
-
-void SpoutManager::setCursorScale(float scale) {
-    cursorScale = scale;
 }

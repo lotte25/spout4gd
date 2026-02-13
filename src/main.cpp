@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "SpoutManager.hpp"
+#include "FakeCursor.hpp"
 #include <Geode/modify/CCEGLView.hpp>
 
 SpoutManager& manager = SpoutManager::get();
@@ -11,7 +12,7 @@ $on_mod(Loaded) {
 
     manager.updateFrameInterval(savedFPS);
     manager.setCursorVisible(showCursor);
-    manager.setCursorScale(cursorScale);
+    FakeCursor::setScale(cursorScale);
 
     listenForSettingChanges("output-fps", [](int fps) {
         manager.updateFrameInterval(fps);
@@ -22,7 +23,7 @@ $on_mod(Loaded) {
     });
 
     listenForSettingChanges("cursor-scale", [](float scale) {
-        manager.setCursorScale(scale);
+        FakeCursor::setScale(scale);
     });
 }
 
