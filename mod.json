@@ -11,11 +11,6 @@
 	"version": "v1.0.0",
 	"developer": "Amiza",
 	"description": "Captures the game screen using Spout2",
-	"resources": {
-		"sprites": [
-			"resources/cursor.png"
-		]
-	},
 	"settings": {
 		"stream-options": {
 			"type": "title",
