@@ -3,32 +3,30 @@
 #include "FakeCursor.hpp"
 #include <Geode/modify/CCEGLView.hpp>
 
-SpoutManager& manager = SpoutManager::get();
-
 $on_mod(Loaded) {
     auto savedFPS = geode::Mod::get()->getSettingValue<int64_t>("output-fps");
     auto showCursor = geode::Mod::get()->getSettingValue<bool>("show-cursor");
     auto cursorScale = geode::Mod::get()->getSettingValue<double>("cursor-scale");
     auto cursorFilter = geode::Mod::get()->getSettingValue<std::string>("cursor-filter");
 
-    manager.updateFrameInterval(savedFPS);
-    manager.setCursorVisible(showCursor);
+    SpoutManager::get().updateFrameInterval(savedFPS);
+    SpoutManager::get().setCursorVisible(showCursor);
     FakeCursor::setScale(cursorScale);
     FakeCursor::setFilter(cursorFilter);
 
     listenForSettingChanges("output-fps", [](int fps) {
-        manager.updateFrameInterval(fps);
+        SpoutManager::get().updateFrameInterval(fps);
     });
 
     listenForSettingChanges("show-cursor", [](bool show) {
-        manager.setCursorVisible(show);
+        SpoutManager::get().setCursorVisible(show);
     });
 
     listenForSettingChanges("cursor-scale", [](float scale) {
         FakeCursor::setScale(scale);
     });
 
-    listenForSettingChanges("cursor-filter", [](std::string filter) {
+    listenForSettingChanges("cursor-filter", [](std::string const& filter) {
         FakeCursor::setFilter(filter);
     });
 }
@@ -41,9 +39,9 @@ class $modify(CCEGLView) {
     }
 
     void swapBuffers() {
-        if (manager.shouldSendFrame()) {
+        if (SpoutManager::get().shouldSendFrame()) {
             auto size = getFrameSize();
-            manager.captureScreen(size.width, size.height);
+            SpoutManager::get().captureScreen(size.width, size.height);
         }
         CCEGLView::swapBuffers();
     }
