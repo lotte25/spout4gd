@@ -30,4 +30,5 @@ namespace FakeCursor {
     void updateTextureParams();
     bool init();
     void draw(int w, int h);
+    void reset();
 }

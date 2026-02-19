@@ -1,6 +1,4 @@
 #include "FakeCursor.hpp"
-#include <cstddef>
-#include <winuser.h>
 
 namespace FakeCursor {
     static CCTexture2D* texture;
@@ -240,5 +238,12 @@ namespace FakeCursor {
         glPopAttrib();
         // Restore shader program
         glUseProgram(oldProgram);
+    }
+
+    void reset() {
+        delete texture;
+        cursorData = CursorTextureInfo{};
+        offsetX = 0.f;
+        offsetY = 0.f;
     }
 }

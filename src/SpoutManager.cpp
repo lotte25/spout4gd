@@ -15,6 +15,23 @@ SpoutManager::~SpoutManager() {
     mainTarget->cleanup();
 }
 
+bool SpoutManager::validateContext() {
+    HGLRC currentContext = wglGetCurrentContext();
+    bool contextChanged = currentContext != lastContext;
+
+    if (contextChanged) {
+        log::warn("OpenGL context changed! (old: {}, new: {})", (long long)lastContext, (long long)currentContext);
+
+        FakeCursor::reset();
+        mainTarget->cleanup();
+
+        lastContext = currentContext;
+        return false;
+    }
+
+    return true;
+}
+
 bool SpoutManager::shouldSendFrame() {
     auto now = clock::now();
     if (now >= nextCaptureTime) {
@@ -39,7 +56,8 @@ void SpoutManager::drawCursor(int w, int h) {
 }
 
 void SpoutManager::captureScreen(int w, int h) {
-    if (!w || !h) return;
+    if (w <= 0 || h <= 0) return;
+    if (!validateContext()) return;
 
     mainTarget->ensureSize(w, h);
 

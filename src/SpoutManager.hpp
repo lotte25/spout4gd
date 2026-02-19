@@ -8,6 +8,7 @@ class SpoutManager {
 public:
     static SpoutManager& get();
 
+    bool validateContext();
     bool shouldSendFrame();
     void drawCursor(int w, int h);
     void captureScreen(int w, int h);
@@ -19,6 +20,7 @@ private:
     SpoutManager();
     ~SpoutManager();
 
+    HGLRC lastContext;
     SpoutTarget* mainTarget = new SpoutTarget("Spout4GD - Screen");
     using clock = std::chrono::steady_clock;
     std::chrono::nanoseconds frameInterval;
