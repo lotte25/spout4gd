@@ -9,7 +9,7 @@ public:
 
     void cleanup();
     void ensureSize(int w, int h);
-    void bind();
+    void bind(bool read = false);
     void clear();
     void send();
 

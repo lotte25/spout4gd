@@ -70,9 +70,9 @@ void SpoutTarget::ensureSize(int w, int h) {
     }
 }
 
-void SpoutTarget::bind() {
+void SpoutTarget::bind(bool read) {
     if (fbo) {
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glBindFramebuffer(read ? GL_READ_FRAMEBUFFER : GL_DRAW_FRAMEBUFFER, fbo);
         glViewport(0, 0, width, height);
     }
 }
