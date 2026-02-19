@@ -1,5 +1,4 @@
 #include "SpoutTarget.hpp"
-#include <iostream>
 
 SpoutTarget::SpoutTarget(const std::string& name) : senderName(name) {}
 
@@ -8,23 +7,26 @@ SpoutTarget::~SpoutTarget() {
 }
 
 void SpoutTarget::cleanup() {
-    if (fbo) glDeleteFramebuffers(1, &fbo);
-    if (texture) glDeleteTextures(1, &texture);
     fbo = 0;
     texture = 0;
-    width = 0;
-    height = 0;
     initialized = false;
     sender.ReleaseSender();
+    sender.CloseOpenGL();
 }
 
 void SpoutTarget::ensureSize(int w, int h) {
     if (w <= 0 || h <= 0) return;
-    if (initialized && width == w && height == h && fbo != 0) return;
-    
+    if (initialized && width == w && height == h) return;
+
+    log::debug("recreating resources");
+
     if (texture) {
         glDeleteTextures(1, &texture);
         texture = 0;
+    }
+    if (fbo) {
+        glDeleteFramebuffers(1, &fbo);
+        fbo = 0;
     }
 
     width = w;
@@ -44,7 +46,7 @@ void SpoutTarget::ensureSize(int w, int h) {
         NULL
     );
 
-    if (!fbo) glGenFramebuffers(1, &fbo);
+    glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glFramebufferTexture2D(
         GL_FRAMEBUFFER,
@@ -55,6 +57,7 @@ void SpoutTarget::ensureSize(int w, int h) {
     );
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        log::warn("incomplete framebuffer, cleaning up");
         cleanup();
     }
 
@@ -64,7 +67,6 @@ void SpoutTarget::ensureSize(int w, int h) {
         initialized = sender.CreateSender(senderName.c_str(), width, height);
     } else {
         auto update = sender.UpdateSender(senderName.c_str(), width, height);
-        geode::log::warn("updated? {}", update);
     }
 }
 
