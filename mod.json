@@ -36,17 +36,18 @@
 		}, 
 		"cursor-options": {
 			"type": "title",
-			"name": "Fake cursor options"
+			"name": "Cursor Options"
 		},
 		"show-cursor": {
 			"type": "bool",
-			"name": "Enable cursor",
-			"description": "Renders a fake cursor to the output.",
+			"name": "Capture cursor",
+			"description": "Renders the system cursor to the output.",
 			"default": true
 		},
 		"cursor-scale": {
 			"type": "float",
 			"name": "Cursor scale",
+			"description": "Sets the rendered cursor scale.",
 			"default": 1,
 			"min": 0,
 			"max": 10,
@@ -57,7 +58,7 @@
 		"cursor-filter": {
 			"type": "string",
 			"name": "Cursor filter",
-			"description": "Sets the filter to use when rendering the cursor",
+			"description": "Sets the filter to use when rendering the cursor. Nearest is useful for pixel art cursors.",
 			"default": "Linear",
 			"match": "[A-Z][a-z]+",
 			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
