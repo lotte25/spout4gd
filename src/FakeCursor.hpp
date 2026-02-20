@@ -2,7 +2,7 @@
 
 #include "includes.hpp"
 
-namespace FakeCursor {
+namespace fakecursor {
     struct CursorTextureInfo {
         std::vector<uint8_t> pixels;
         int width = 0;
@@ -13,19 +13,17 @@ namespace FakeCursor {
     };
 
     struct CursorPos {
-        float x;
-        float y;
+        float x = 0.f;
+        float y = 0.f;
     };
 
-    static const std::unordered_map<std::string, GLuint> filterMap = {
-        { "Nearest", GL_NEAREST },
-        { "Linear",  GL_LINEAR },
+    inline std::unordered_map<std::string, GLuint> const filterMap = {
+        {"Nearest", GL_NEAREST },
+        {"Linear",  GL_LINEAR },
     };
-
-    CursorTextureInfo CreateTexture();
 
     void setScale(float scale);
-    void setFilter(const std::string& filter);
+    void setFilter(std::string const& filter);
 
     void updateTextureParams();
     bool init();

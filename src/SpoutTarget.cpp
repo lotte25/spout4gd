@@ -1,14 +1,20 @@
 #include "SpoutTarget.hpp"
 
-SpoutTarget::SpoutTarget(const std::string& name) : senderName(name) {}
+SpoutTarget::SpoutTarget(std::string const& name) : senderName(name) {}
 
 SpoutTarget::~SpoutTarget() {
     cleanup();
 }
 
 void SpoutTarget::cleanup() {
-    fbo = 0;
-    texture = 0;
+    if (fbo) {
+        glDeleteFramebuffers(1, &fbo);
+        fbo = 0;
+    }
+    if (texture) {
+        glDeleteTextures(1, &texture);
+        texture = 0;
+    }
     initialized = false;
     sender.ReleaseSender();
     sender.CloseOpenGL();
@@ -43,7 +49,7 @@ void SpoutTarget::ensureSize(int w, int h) {
         0, 
         GL_RGBA, 
         GL_UNSIGNED_BYTE, 
-        NULL
+        nullptr
     );
 
     glGenFramebuffers(1, &fbo);
@@ -66,7 +72,7 @@ void SpoutTarget::ensureSize(int w, int h) {
     if (!initialized) {
         initialized = sender.CreateSender(senderName.c_str(), width, height);
     } else {
-        auto update = sender.UpdateSender(senderName.c_str(), width, height);
+        sender.UpdateSender(senderName.c_str(), width, height);
     }
 }
 
@@ -80,7 +86,7 @@ void SpoutTarget::bind(bool read) {
 void SpoutTarget::clear() {
     if (fbo) {
         bind();
-        glClearColor(0, 0, 0, 0);
+        glClearColor(0.f, 0.f, 0.f, 0.f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }

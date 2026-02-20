@@ -4,8 +4,11 @@
 
 class SpoutTarget {
 public:
-    SpoutTarget(const std::string& name);
+    SpoutTarget(std::string const& name);
     ~SpoutTarget();
+
+    SpoutTarget(SpoutTarget const&) = delete;
+    SpoutTarget& operator=(SpoutTarget const&) = delete;
 
     void cleanup();
     void ensureSize(int w, int h);

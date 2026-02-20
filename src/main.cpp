@@ -7,12 +7,14 @@ $on_mod(Loaded) {
     auto savedFPS = geode::Mod::get()->getSettingValue<int64_t>("output-fps");
     auto showCursor = geode::Mod::get()->getSettingValue<bool>("show-cursor");
     auto cursorScale = geode::Mod::get()->getSettingValue<double>("cursor-scale");
-    auto cursorFilter = geode::Mod::get()->getSettingValue<std::string>("cursor-filter");
+    auto cursorFilter = geode::Mod::get()->getSettingValue<std::string>(
+        "cursor-filter"
+    );
 
     SpoutManager::get().updateFrameInterval(savedFPS);
     SpoutManager::get().setCursorVisible(showCursor);
-    FakeCursor::setScale(cursorScale);
-    FakeCursor::setFilter(cursorFilter);
+    fakecursor::setScale(cursorScale);
+    fakecursor::setFilter(cursorFilter);
 
     listenForSettingChanges("output-fps", [](int fps) {
         SpoutManager::get().updateFrameInterval(fps);
@@ -22,12 +24,12 @@ $on_mod(Loaded) {
         SpoutManager::get().setCursorVisible(show);
     });
 
-    listenForSettingChanges("cursor-scale", [](float scale) {
-        FakeCursor::setScale(scale);
+    listenForSettingChanges("cursor-scale", [](double scale) {
+        fakecursor::setScale(scale);
     });
 
     listenForSettingChanges("cursor-filter", [](std::string const& filter) {
-        FakeCursor::setFilter(filter);
+        fakecursor::setFilter(filter);
     });
 }
 

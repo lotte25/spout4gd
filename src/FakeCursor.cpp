@@ -1,24 +1,25 @@
 #include "FakeCursor.hpp"
+#include "Geode/cocos/support/CCPointExtension.h"
 
-namespace FakeCursor {
-    static CCTexture2D* texture;
-    static GLuint textureFilter = GL_LINEAR;
-    static CursorTextureInfo cursorData;
-    static float cursorScale = 1.f;
-    static float offsetX = 0.f;
-    static float offsetY = 0.f;
+namespace fakecursor {
+    static geode::Ref<CCTexture2D> s_texture;
+    static GLuint s_textureFilter = GL_LINEAR;
+    static CursorTextureInfo s_cursorData;
+    static float s_cursorScale = 1.f;
+    static float s_offsetX = 0.f;
+    static float s_offsetY = 0.f;
 
-    CursorTextureInfo CreateTexture() {
+    static CursorTextureInfo createTexture() {
         CursorTextureInfo result;
 
         CURSORINFO ci = { 0 };
         ci.cbSize = sizeof(ci);
         if (!GetCursorInfo(&ci)) return result;
 
-        HCURSOR hCursor = ci.hCursor;
+        HCURSOR cursor = ci.hCursor;
 
         ICONINFO ii = { 0 };
-        if (!GetIconInfo(hCursor, &ii)) return result;
+        if (!GetIconInfo(cursor, &ii)) return result;
 
         BITMAP bmp = { 0 };
         if (ii.hbmColor) {
@@ -36,8 +37,8 @@ namespace FakeCursor {
         result.width = width;
         result.height = height;
 
-        HDC scrdc = GetDC(NULL);
-        HDC memdc = CreateCompatibleDC(scrdc);
+        HDC screenDc = GetDC(nullptr);
+        HDC memoryDc = CreateCompatibleDC(screenDc);
 
         BITMAPINFO bi = { 0 };
         bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -48,11 +49,11 @@ namespace FakeCursor {
         bi.bmiHeader.biCompression = BI_RGB;
 
         void* bits = nullptr;
-        HBITMAP hNewBitmap = CreateDIBSection(memdc, &bi, DIB_RGB_COLORS, &bits, NULL, 0);
+        HBITMAP newBitmap = CreateDIBSection(memoryDc, &bi, DIB_RGB_COLORS, &bits, nullptr, 0);
 
-        if (hNewBitmap) {
-            HBITMAP hOldBitmap = static_cast<HBITMAP>(SelectObject(memdc, hNewBitmap));
-            DrawIconEx(memdc, 0, 0, hCursor, width, height, 0, NULL, DI_NORMAL);
+        if (newBitmap) {
+            HBITMAP oldBitmap = static_cast<HBITMAP>(SelectObject(memoryDc, newBitmap));
+            DrawIconEx(memoryDc, 0, 0, cursor, width, height, 0, nullptr, DI_NORMAL);
 
             size_t pixelCount = width * height;
 
@@ -83,7 +84,9 @@ namespace FakeCursor {
             if (!foundAlpha) {
                 std::vector<uint32_t> maskPixels(pixelCount);
 
-                if (GetDIBits(memdc, ii.hbmMask, 0, height, maskPixels.data(), &bi, DIB_RGB_COLORS)) {
+                if (GetDIBits(
+                    memoryDc, ii.hbmMask, 0, height, maskPixels.data(), &bi, DIB_RGB_COLORS
+                )) {
                     for (size_t i = 0; i < pixelCount; ++i) {
                         bool isTransparent = (maskPixels[i] & 0xFF) != 0;
                         
@@ -98,12 +101,12 @@ namespace FakeCursor {
 
             result.success = true;
 
-            SelectObject(memdc, hOldBitmap);
-            DeleteObject(hNewBitmap);
+            SelectObject(memoryDc, oldBitmap);
+            DeleteObject(newBitmap);
         }
 
-        DeleteDC(memdc);
-        ReleaseDC(NULL, scrdc);
+        DeleteDC(memoryDc);
+        ReleaseDC(nullptr, screenDc);
 
         if (ii.hbmColor) DeleteObject(ii.hbmColor);
         if (ii.hbmMask) DeleteObject(ii.hbmMask);
@@ -111,10 +114,10 @@ namespace FakeCursor {
         return result;
     }
 
-    CursorPos CalculateCursorPos(int h) {
-        if (offsetX == 0 && offsetY == 0) {
-            offsetX = (cursorData.width * cursorData.anchorX) * cursorScale;
-            offsetY = (cursorData.height * (1.0f - cursorData.anchorY)) * cursorScale;
+    static CursorPos calculateCursorPos(int h) {
+        if (s_offsetX == 0 && s_offsetY == 0) {
+            s_offsetX = (s_cursorData.width * s_cursorData.anchorX) * s_cursorScale;
+            s_offsetY = (s_cursorData.height * (1.0f - s_cursorData.anchorY)) * s_cursorScale;
         }
 
         POINT p;
@@ -123,63 +126,69 @@ namespace FakeCursor {
 
         float glY = h - p.y;
 
-        float x = static_cast<float>(p.x) - offsetX;
-        float y = glY - offsetY;
+        float x = static_cast<float>(p.x) - s_offsetX;
+        float y = glY - s_offsetY;
 
         return CursorPos{x, y};
     }
 
     void setScale(float scale) {
-        cursorScale = scale;
-        offsetX = 0.f;
-        offsetY = 0.f;
+        s_cursorScale = scale;
+        s_offsetX = 0.f;
+        s_offsetY = 0.f;
     }
 
-    void setFilter(const std::string& filter) {
+    void setFilter(std::string const& filter) {
         auto it = filterMap.find(filter);
         if (it != filterMap.end()) {
-            textureFilter = it->second;
+            s_textureFilter = it->second;
         }
 
         updateTextureParams();
     }
 
     void updateTextureParams() {
-        if (texture == nullptr) return;
+        if (s_texture == nullptr) return;
 
         ccTexParams params = {
-            textureFilter, 
-            textureFilter, 
+            s_textureFilter, 
+            s_textureFilter, 
             GL_CLAMP_TO_EDGE, 
             GL_CLAMP_TO_EDGE
         };
         
-        texture->setTexParameters(&params);
+        s_texture->setTexParameters(&params);
     }
 
     bool init() {
-        if (cursorData.success && texture != nullptr) return true;
+        if (s_cursorData.success && s_texture != nullptr) return true;
 
-        cursorData = CreateTexture();
-        if (!cursorData.success) return false;
+        s_cursorData = createTexture();
+        if (!s_cursorData.success) return false;
 
-        texture = new CCTexture2D();
-        texture->initWithData(
-            cursorData.pixels.data(), 
+        auto newTexture = new CCTexture2D();
+        newTexture->initWithData(
+            s_cursorData.pixels.data(), 
             cocos2d::kCCTexture2DPixelFormat_RGBA8888, 
-            cursorData.width, 
-            cursorData.height, 
-            CCSize(cursorData.width, cursorData.height)
-        ); 
+            s_cursorData.width, 
+            s_cursorData.height, 
+            CCSize(
+                static_cast<float>(s_cursorData.width), 
+                static_cast<float>(s_cursorData.height)
+            )
+        );
+        newTexture->autorelease();
+        s_texture = newTexture;
+
         updateTextureParams();
 
         return true;
     }
 
     void draw(int w, int h) {
-        auto cursorPos = CalculateCursorPos(h);
-        float cursorW = cursorData.width * cursorScale;
-        float cursorH = cursorData.height * cursorScale;
+        auto cursorPos = calculateCursorPos(h);
+        float cursorW = s_cursorData.width * s_cursorScale;
+        float cursorH = s_cursorData.height * s_cursorScale;
 
         // Save current attributes
         glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -207,7 +216,7 @@ namespace FakeCursor {
 
         // Start drawing the texture
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, texture->getName());
+        glBindTexture(GL_TEXTURE_2D, s_texture->getName());
 
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -241,9 +250,9 @@ namespace FakeCursor {
     }
 
     void reset() {
-        delete texture;
-        cursorData = CursorTextureInfo{};
-        offsetX = 0.f;
-        offsetY = 0.f;
+        s_texture = nullptr;
+        s_cursorData = CursorTextureInfo{};
+        s_offsetX = 0.f;
+        s_offsetY = 0.f;
     }
 }

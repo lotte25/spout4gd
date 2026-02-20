@@ -3,13 +3,15 @@
 #include "FakeCursor.hpp"
 
 SpoutManager& SpoutManager::get() {
-    static SpoutManager instance;
-    return instance;
+    static SpoutManager s_instance;
+    return s_instance;
 }
 
 SpoutManager::SpoutManager() :
-    frameInterval(std::chrono::nanoseconds(static_cast<int64_t>(1000000000.0 / 60))),
-    nextCaptureTime(clock::now()) {}
+    frameInterval(std::chrono::nanoseconds(
+        static_cast<int64_t>(1000000000.0 / 60)
+    )),
+    nextCaptureTime(SteadyClock::now()) {}
 
 SpoutManager::~SpoutManager() {
     mainTarget->cleanup();
@@ -20,9 +22,13 @@ bool SpoutManager::validateContext() {
     bool contextChanged = currentContext != lastContext;
 
     if (contextChanged) {
-        log::warn("OpenGL context changed! (old: {}, new: {})", (long long)lastContext, (long long)currentContext);
+        log::warn(
+            "OpenGL context changed! (old: {}, new: {})", 
+            reinterpret_cast<long long>(lastContext), 
+            reinterpret_cast<long long>(currentContext)
+        );
 
-        FakeCursor::reset();
+        fakecursor::reset();
         mainTarget->cleanup();
 
         lastContext = currentContext;
@@ -33,7 +39,7 @@ bool SpoutManager::validateContext() {
 }
 
 bool SpoutManager::shouldSendFrame() {
-    auto now = clock::now();
+    auto now = SteadyClock::now();
     if (now >= nextCaptureTime) {
         nextCaptureTime += frameInterval;
 
@@ -47,12 +53,12 @@ bool SpoutManager::shouldSendFrame() {
 }
 
 void SpoutManager::drawCursor(int w, int h) {
-    if (!FakeCursor::init()) {
+    if (!fakecursor::init()) {
         log::warn("Couldn't create fake cursor");
         return;
     }
 
-    FakeCursor::draw(w, h);
+    fakecursor::draw(w, h);
 }
 
 void SpoutManager::captureScreen(int w, int h) {
@@ -61,7 +67,9 @@ void SpoutManager::captureScreen(int w, int h) {
 
     mainTarget->ensureSize(w, h);
 
-    GLint oldDrawFBO, oldReadFBO, oldTexture;
+    GLint oldDrawFBO;
+    GLint oldReadFBO;
+    GLint oldTexture;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oldDrawFBO);
     glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldReadFBO);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &oldTexture);
@@ -86,14 +94,17 @@ void SpoutManager::captureScreen(int w, int h) {
     mainTarget->send();
 }
 
-void SpoutManager::updateFrameInterval(double fps) {
+void SpoutManager::updateFrameInterval(int fps) {
     frameInterval = std::chrono::nanoseconds(
         static_cast<int64_t>(1000000000.0 / fps)
     );
 
-    nextCaptureTime = clock::now() + frameInterval;
+    nextCaptureTime = SteadyClock::now() + frameInterval;
 
-    log::info("frame interval updated to {} fps ({}ns)", fps, frameInterval.count());
+    log::info(
+        "frame interval updated to {} fps ({}ns)", 
+        fps, frameInterval.count()
+    );
 }
 
 void SpoutManager::setCursorVisible(bool show) {
