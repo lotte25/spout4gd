@@ -27,6 +27,6 @@ namespace fakecursor {
 
     void updateTextureParams();
     bool init();
-    void draw(int w, int h);
+    void draw(int origW, int origH, int targetW, int targetH);
     void reset();
 }

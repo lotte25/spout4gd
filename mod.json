@@ -17,6 +17,16 @@
 			"name": "Stream Options",
 			"description": "Set output settings like FPS and (soon) fixed output resolution"
 		},
+		"output-resolution": {
+			"type": "custom:resolution-type",
+			"name": "Output Resolution",
+			"description": "Enable and set a custom output resolution. If disabled, window size will be used.",
+			"default": {
+				"enabled": false,
+				"width": 1920,
+				"height": 1080
+			}
+		},
 		"output-fps": {
 			"type": "int",
 			"name": "Output FPS",
@@ -51,6 +61,7 @@
 			"default": 1,
 			"min": 0,
 			"max": 10,
+			"enable-if": "show-cursor",
 			"control": {
 				"slider": true
 			}
@@ -58,11 +69,12 @@
 		"cursor-filter": {
 			"type": "string",
 			"name": "Cursor filter",
-			"description": "Sets the filter to use when rendering the cursor. Nearest is useful for pixel art cursors.",
+			"description": "Sets the filter to use when rendering the cursor. Nearest is useful for pixel art.",
 			"default": "Linear",
 			"match": "[A-Z][a-z]+",
 			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-			"one-of": ["Nearest", "Linear"]
+			"one-of": ["Nearest", "Linear"],
+			"enable-if": "show-cursor"
 		}
 	}
 }

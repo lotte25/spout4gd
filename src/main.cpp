@@ -1,10 +1,14 @@
 #include "includes.hpp"
 #include "SpoutManager.hpp"
 #include "FakeCursor.hpp"
+#include "ResolutionSetting.hpp"
 #include <Geode/modify/CCEGLView.hpp>
 
-$on_mod(Loaded) {
+$execute {
+    (void)geode::Mod::get()->registerCustomSettingType("resolution-type", &ResolutionSettingV3::parse);
+
     auto savedFPS = geode::Mod::get()->getSettingValue<int64_t>("output-fps");
+    auto savedResolution = geode::Mod::get()->getSettingValue<CustomResolution>("output-resolution");
     auto showCursor = geode::Mod::get()->getSettingValue<bool>("show-cursor");
     auto cursorScale = geode::Mod::get()->getSettingValue<double>("cursor-scale");
     auto cursorFilter = geode::Mod::get()->getSettingValue<std::string>(
@@ -12,7 +16,8 @@ $on_mod(Loaded) {
     );
 
     SpoutManager::get().updateFrameInterval(savedFPS);
-    SpoutManager::get().setCursorVisible(showCursor);
+    SpoutManager::get().setOutputResolution(savedResolution);
+    SpoutManager::get().enableCursor(showCursor);
     fakecursor::setScale(cursorScale);
     fakecursor::setFilter(cursorFilter);
 
@@ -20,8 +25,12 @@ $on_mod(Loaded) {
         SpoutManager::get().updateFrameInterval(fps);
     });
 
+    listenForSettingChanges("output-resolution", [](CustomResolution resolution) {
+        SpoutManager::get().setOutputResolution(resolution);
+    });
+
     listenForSettingChanges("show-cursor", [](bool show) {
-        SpoutManager::get().setCursorVisible(show);
+        SpoutManager::get().enableCursor(show);
     });
 
     listenForSettingChanges("cursor-scale", [](double scale) {
@@ -43,7 +52,7 @@ class $modify(CCEGLView) {
     void swapBuffers() {
         if (SpoutManager::get().shouldSendFrame()) {
             auto size = getFrameSize();
-            SpoutManager::get().captureScreen(size.width, size.height);
+            SpoutManager::get().captureScreen(size.width, size.height, m_bShouldHideCursor);
         }
         CCEGLView::swapBuffers();
     }

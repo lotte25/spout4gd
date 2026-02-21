@@ -1,4 +1,5 @@
 #include "SpoutManager.hpp"
+#include "ResolutionSetting.hpp"
 #include "SpoutTarget.hpp"
 #include "FakeCursor.hpp"
 
@@ -52,20 +53,19 @@ bool SpoutManager::shouldSendFrame() {
     return false;
 }
 
-void SpoutManager::drawCursor(int w, int h) {
-    if (!fakecursor::init()) {
-        log::warn("Couldn't create fake cursor");
-        return;
-    }
-
-    fakecursor::draw(w, h);
-}
-
-void SpoutManager::captureScreen(int w, int h) {
+void SpoutManager::captureScreen(int w, int h, bool cursorHidden) {
     if (w <= 0 || h <= 0) return;
     if (!validateContext()) return;
 
-    mainTarget->ensureSize(w, h);
+    int targetWidth = w;
+    int targetHeight = h;
+
+    if (resolution.enabled && resolution.width > 0 && resolution.height > 0) {
+        targetWidth = resolution.width;
+        targetHeight = resolution.height;
+    }
+
+    mainTarget->ensureSize(targetWidth, targetHeight);
 
     GLint oldDrawFBO;
     GLint oldReadFBO;
@@ -78,14 +78,23 @@ void SpoutManager::captureScreen(int w, int h) {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mainTarget->fbo);
     glReadBuffer(GL_BACK);
 
+    GLenum filter = (w == targetWidth && h == targetHeight) ? GL_NEAREST : GL_LINEAR;
+
     glBlitFramebuffer(
         0, 0, w, h,
-        0, 0, w, h,
+        0, 0, targetWidth, targetHeight,
         GL_COLOR_BUFFER_BIT,
-        GL_NEAREST
+        filter
     );
 
-    if (shouldRenderCursor) drawCursor(w, h);
+    if (cursorEnabled && !cursorHidden) {
+        if (!fakecursor::init()) {
+            log::warn("Couldn't create fake cursor");
+            return;
+        }
+
+        fakecursor::draw(w, h, targetWidth, targetHeight);
+    }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadFBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawFBO);
@@ -107,6 +116,10 @@ void SpoutManager::updateFrameInterval(int fps) {
     );
 }
 
-void SpoutManager::setCursorVisible(bool show) {
-    shouldRenderCursor = show;
+void SpoutManager::setOutputResolution(CustomResolution const& res) {
+    resolution = res;
+}
+
+void SpoutManager::enableCursor(bool show) {
+    cursorEnabled = show;
 }

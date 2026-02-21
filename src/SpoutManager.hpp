@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ResolutionSetting.hpp"
 #include "includes.hpp"
 #include "SpoutTarget.hpp"
 #include <chrono>
@@ -10,10 +11,11 @@ public:
 
     bool validateContext();
     bool shouldSendFrame();
-    void drawCursor(int w, int h);
-    void captureScreen(int w, int h);
+    void drawCursor(int origW, int origH, int targetW, int targetH);
+    void captureScreen(int w, int h, bool cursorHidden);
     void updateFrameInterval(int fps);
-    void setCursorVisible(bool show);
+    void setOutputResolution(CustomResolution const& res);
+    void enableCursor(bool show);
     void reset();
 
 private:
@@ -31,8 +33,9 @@ private:
         Maybe there is a better way or a fix to this crash, but i don't know about it for now.
     */
     SpoutTarget* mainTarget = new SpoutTarget("Spout4GD - Screen");
+    CustomResolution resolution;
     using SteadyClock = std::chrono::steady_clock;
     std::chrono::nanoseconds frameInterval;
     SteadyClock::time_point nextCaptureTime;
-    bool shouldRenderCursor = true;
+    bool cursorEnabled = true;
 };

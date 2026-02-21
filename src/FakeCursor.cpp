@@ -114,7 +114,7 @@ namespace fakecursor {
         return result;
     }
 
-    static CursorPos calculateCursorPos(int h) {
+    static CursorPos calculateCursorPos(int origW, int origH, int targetW, int targetH) {
         if (s_offsetX == 0 && s_offsetY == 0) {
             s_offsetX = (s_cursorData.width * s_cursorData.anchorX) * s_cursorScale;
             s_offsetY = (s_cursorData.height * (1.0f - s_cursorData.anchorY)) * s_cursorScale;
@@ -124,9 +124,14 @@ namespace fakecursor {
         GetCursorPos(&p);
         ScreenToClient(GetForegroundWindow(), &p);
 
-        float glY = h - p.y;
+        float scaleX = static_cast<float>(targetW) / static_cast<float>(origW);
+        float scaleY = static_cast<float>(targetH) / static_cast<float>(origH);
+        float scaledX = static_cast<float>(p.x) * scaleX;
+        float scaledY = static_cast<float>(p.y) * scaleY;
 
-        float x = static_cast<float>(p.x) - s_offsetX;
+        float glY = targetH - scaledY;
+
+        float x = scaledX - s_offsetX;
         float y = glY - s_offsetY;
 
         return CursorPos{x, y};
@@ -185,8 +190,8 @@ namespace fakecursor {
         return true;
     }
 
-    void draw(int w, int h) {
-        auto cursorPos = calculateCursorPos(h);
+    void draw(int origW, int origH, int targetW, int targetH) {
+        auto cursorPos = calculateCursorPos(origW, origH, targetW, targetH);
         float cursorW = s_cursorData.width * s_cursorScale;
         float cursorH = s_cursorData.height * s_cursorScale;
 
@@ -200,12 +205,12 @@ namespace fakecursor {
 
         glDrawBuffer(GL_COLOR_ATTACHMENT0); 
 
-        glViewport(0, 0, w, h);
+        glViewport(0, 0, targetW, targetH);
 
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        glOrtho(0, w, 0, h, -1, 1);
+        glOrtho(0, targetW, 0, targetH, -1, 1);
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
