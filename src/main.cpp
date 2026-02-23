@@ -21,23 +21,23 @@ $execute {
     fakecursor::setScale(cursorScale);
     fakecursor::setFilter(cursorFilter);
 
-    listenForSettingChanges("output-fps", [](int fps) {
+    listenForSettingChanges<int>("output-fps", [](int fps) {
         SpoutManager::get().updateFrameInterval(fps);
     });
 
-    listenForSettingChanges("output-resolution", [](CustomResolution resolution) {
+    listenForSettingChanges<CustomResolution>("output-resolution", [](CustomResolution resolution) {
         SpoutManager::get().setOutputResolution(resolution);
     });
 
-    listenForSettingChanges("show-cursor", [](bool show) {
+    listenForSettingChanges<bool>("show-cursor", [](bool show) {
         SpoutManager::get().enableCursor(show);
     });
 
-    listenForSettingChanges("cursor-scale", [](double scale) {
+    listenForSettingChanges<double>("cursor-scale", [](double scale) {
         fakecursor::setScale(scale);
     });
 
-    listenForSettingChanges("cursor-filter", [](std::string const& filter) {
+    listenForSettingChanges<std::string>("cursor-filter", [](std::string const& filter) {
         fakecursor::setFilter(filter);
     });
 }
